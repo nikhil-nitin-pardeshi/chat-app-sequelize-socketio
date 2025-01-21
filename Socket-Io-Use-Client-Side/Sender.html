@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Chat</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Real-time Chat</h1>
+
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const socket = io('http://localhost:3000');
+        const userId = '1';
+        const chatWithId = '2';
+
+        socket.emit('join_room', userId);
+
+        socket.on('receive_message', (message) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = `${message.senderId}: ${message.content}`;
+            document.getElementById('messages').appendChild(messageDiv);
+        });
+
+        function sendMessage() {
+            const content = document.getElementById('messageInput').value;
+            if (content.trim() === '') return;
+
+            const message = {
+                senderId: userId,
+                receiverId: chatWithId,
+                content: document.getElementById('messageInput').value
+            };
+
+            socket.emit('send_message', message);
+
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = `You: ${message.content}`;
+            document.getElementById('messages').appendChild(messageDiv);
+            document.getElementById('messageInput').value = '';
+        }
+    </script>
+</body>
+</html>
